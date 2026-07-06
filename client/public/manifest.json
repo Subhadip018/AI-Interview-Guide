@@ -1,0 +1,16 @@
+{
+  "name": "InterviewAce",
+  "short_name": "InterviewAce",
+  "description": "AI-Powered Virtual Interview Simulator",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090B",
+  "theme_color": "#6366F1",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
