@@ -60,7 +60,7 @@ const setStreakData = (data) => {
 };
 
 const DailyChallengePage = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const questions = useMemo(() => getDailyQuestions(), []);
   const [answers, setAnswers] = useState({});
@@ -84,27 +84,50 @@ const DailyChallengePage = () => {
     }
   }, []);
 
-  const evaluateAnswer = useCallback((answer, question) => {
+  const TOPIC_KEYWORDS = {
+    Frontend: ['react', 'component', 'dom', 'css', 'html', 'javascript', 'jsx', 'state', 'hook', 'render', 'props', 'event', 'responsive', 'flexbox', 'grid', 'virtual', 'api', 'async', 'promise', 'callback', 're-render', 'usestate', 'useeffect', 'classname', 'styled', 'inline', 'scss', 'sass', 'animation', 'transition', 'selector', 'pseudo', 'media', 'query', 'typescript', 'babel', 'webpack'],
+    Backend: ['api', 'database', 'sql', 'nosql', 'server', 'endpoint', 'auth', 'middleware', 'cache', 'scalability', 'docker', 'rest', 'crud', 'microservice', 'load', 'balancing', 'query', 'index', 'migration', 'orm', 'mongoose', 'express', 'node', 'python', 'java', 'spring', 'deployment', 'ci/cd', 'pipeline'],
+    'Full Stack': ['frontend', 'backend', 'database', 'api', 'deployment', 'ci/cd', 'testing', 'architecture', 'scalable', 'maintainable', 'framework', 'pipeline', 'git', 'version', 'control', 'integration', 'fullstack', 'mern', 'mean', 'rest', 'graphql', 'microservice', 'monolith', 'docker'],
+    Behavioral: ['team', 'project', 'challenge', 'solution', 'collaborate', 'communicate', 'lead', 'mentor', 'deadline', 'conflict', 'resolve', 'learn', 'improve', 'result', 'impact', 'responsibility', 'goal', 'achieve', 'stakeholder', 'feedback', 'adapt', 'prioritize', 'negotiate'],
+    'Data Analyst': ['data', 'analysis', 'statistics', 'python', 'sql', 'visualization', 'machine', 'learning', 'pandas', 'numpy', 'regression', 'correlation', 'hypothesis', 'outlier', 'cleaning', 'preprocessing', 'model', 'dashboard', 'tableau', 'power bi', 'excel', 'r', 'scikit', 'tensorflow', 'classification'],
+  };
+
+  const evaluateAnswer = useCallback((answer, question, topic) => {
     if (!answer || answer.trim().length < 10) return 0;
     const text = answer.toLowerCase();
     const words = answer.split(/\s+/).length;
-    const questionWords = question.toLowerCase().split(/\s+/).filter(w => w.length > 3);
-    const matched = questionWords.filter(w => text.includes(w));
-    const keywordRatio = questionWords.length > 0 ? matched.length / questionWords.length : 0;
-    let score = 0;
-    if (keywordRatio > 0.5) score += 40;
-    else if (keywordRatio > 0.3) score += 25;
-    else score += 10;
-    if (words >= 50) score += 30;
-    else if (words >= 30) score += 20;
-    else if (words >= 15) score += 10;
-    if (text.includes('example') || text.includes('for instance') || text.includes('specifically')) score += 15;
-    if (text.includes('because') || text.includes('therefore') || text.includes('however')) score += 15;
-    return Math.min(100, score);
+
+    // Word count score (more lenient thresholds)
+    const lengthScore = words >= 40 ? 35 : words >= 25 ? 25 : words >= 15 ? 15 : 5;
+
+    // Topic-specific keyword matching
+    const keywords = TOPIC_KEYWORDS[topic] || [];
+    const matchedCount = keywords.filter(kw => text.includes(kw)).length;
+    const keywordRatio = keywords.length > 0 ? matchedCount / keywords.length : 0;
+    const keywordScore = keywordRatio >= 0.15 ? 30 : keywordRatio >= 0.08 ? 20 : keywordRatio >= 0.04 ? 10 : 5;
+
+    // Question-aware matching (synonym-friendly - just check for thematic overlap)
+    const questionWords = question.toLowerCase().split(/\s+/).filter(w => w.length > 4);
+    const questionMatches = questionWords.filter(w => text.includes(w)).length;
+    const questionRatio = questionWords.length > 0 ? questionMatches / questionWords.length : 0;
+    const questionScore = questionRatio >= 0.4 ? 15 : questionRatio >= 0.2 ? 8 : 3;
+
+    // Quality indicators
+    const hasExample = /example|for instance|specifically|such as|like|including/i.test(text);
+    const hasReasoning = /because|therefore|however|consequently|as a result|since|hence|thus/i.test(text);
+    const hasStructure = /first|second|finally|additionally|moreover|furthermore|in addition|on the other hand/i.test(text);
+    const qualityScore = (hasExample ? 8 : 0) + (hasReasoning ? 8 : 0) + (hasStructure ? 4 : 0);
+
+    // Bonus for substantial answers with good keyword coverage
+    const bonusScore = words >= 30 && keywordRatio >= 0.1 ? 10 : words >= 20 && keywordRatio >= 0.05 ? 5 : 0;
+
+    let total = lengthScore + keywordScore + questionScore + qualityScore + bonusScore;
+    return Math.min(100, Math.max(0, total));
   }, []);
 
   const handleCheck = (qId) => {
-    const score = evaluateAnswer(answers[qId] || '', questions.find(q => q.id === qId)?.question || '');
+    const q = questions.find(q => q.id === qId);
+    const score = evaluateAnswer(answers[qId] || '', q?.question || '', q?.topic || '');
     setScores(prev => ({ ...prev, [qId]: score }));
     setChecked(prev => ({ ...prev, [qId]: true }));
   };
@@ -112,7 +135,7 @@ const DailyChallengePage = () => {
   const handleSubmit = async () => {
     const allScores = {};
     questions.forEach(q => {
-      allScores[q.id] = evaluateAnswer(answers[q.id] || '', q.question);
+      allScores[q.id] = evaluateAnswer(answers[q.id] || '', q.question, q.topic);
     });
     setScores(allScores);
     const avg = Math.round(Object.values(allScores).reduce((a, b) => a + b, 0) / questions.length);
@@ -138,6 +161,7 @@ const DailyChallengePage = () => {
       setCompleting(true);
       try {
         await axios.post('/api/achievements/daily-complete', { streak: newCount, score: avg });
+        refreshUser();
       } catch { /* ignore */ }
       setCompleting(false);
     }

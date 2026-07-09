@@ -331,27 +331,29 @@ export default function InterviewSetupPage() {
               ))}
             </div>
 
-            <button
-              className="btn btn-primary btn-lg btn-pulse"
-              onClick={handleStart}
-              disabled={loading}
-              id="start-interview-btn"
-              type="button"
-              style={{ minWidth: 240 }}
-            >
-              {loading ? (
-                <>
-                  <span style={{
-                    display: 'inline-block', width: 18, height: 18,
-                    border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff',
-                    borderRadius: '50%', animation: 'spin 0.7s linear infinite'
-                  }} />
-                  Preparing Interview…
-                </>
-              ) : (
-                <> Start Interview</>
-              )}
-            </button>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+              <button
+                className="btn btn-primary btn-lg btn-pulse"
+                onClick={handleStart}
+                disabled={loading}
+                id="start-interview-btn"
+                type="button"
+                style={{ minWidth: 280 }}
+              >
+                {loading ? (
+                  <>
+                    <span style={{
+                      display: 'inline-block', width: 18, height: 18,
+                      border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff',
+                      borderRadius: '50%', animation: 'spin 0.7s linear infinite'
+                    }} />
+                    Preparing Interview...
+                  </>
+                ) : (
+                  <>Start Interview</>
+                )}
+              </button>
+            </div>
 
             <p style={{ marginTop: 14, color: 'var(--text-dim)', fontSize: '0.85rem' }}>
               Your interview will begin immediately after loading questions.

@@ -352,13 +352,14 @@ const Leaderboard = ({ entries }) => (
 /* ── Main Component ─────────────────────────────────── */
 const AchievementsPage = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [unlockedIds, setUnlockedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [leaderboard, setLeaderboard] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const load = async () => {
+      try { await refreshUser(); } catch {}
       try {
         const [achRes, lbRes] = await Promise.all([
           axios.get('/api/achievements'),
@@ -381,8 +382,7 @@ const AchievementsPage = () => {
         setLoading(false);
       }
     };
-
-    fetchData();
+    load();
   }, []);
 
   const streak = user?.streak ?? 0;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { FaTrophy, FaUsers, FaFire, FaAward } from 'react-icons/fa';
+import { FaTrophy, FaUsers, FaFire, FaAward, FaCalendarAlt, FaRocket } from 'react-icons/fa';
 
 const getRankBadge = (rank) => {
   if (rank === 1) return <FaTrophy style={{ color: '#FFD700' }} />;
@@ -83,7 +83,7 @@ const LeaderboardPage = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
-                      {['Rank', 'Name', 'Best Score', 'Interviews', 'Streak', 'Last Active'].map((h) => (
+                      {['Rank', 'Name', 'Best Score', 'Interviews', 'Best Streak', 'Joined'].map((h) => (
                         <th key={h} style={{ padding: '12px 16px', textAlign: h === 'Rank' ? 'center' : 'left', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1px solid var(--border)' }}>
                           {h}
                         </th>
@@ -110,10 +110,10 @@ const LeaderboardPage = () => {
                           </td>
                           <td style={{ padding: '14px 16px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{entry.interviews}</td>
                           <td style={{ padding: '14px 16px' }}>
-                            <span style={{ color: entry.streak > 0 ? 'var(--warning)' : 'var(--text-dim)', fontWeight: 700 }}><FaFire style={{ marginRight: 4 }} /> {entry.streak}</span>
+                            <span style={{ color: entry.maxStreak > 0 ? 'var(--warning)' : 'var(--text-dim)', fontWeight: 700 }}><FaFire style={{ marginRight: 4 }} /> {entry.maxStreak}</span>
                           </td>
                           <td style={{ padding: '14px 16px', color: 'var(--text-dim)', fontSize: '0.85rem' }}>
-                            {entry.date ? new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
+                            {entry.createdAt ? new Date(entry.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
                           </td>
                         </tr>
                       ))
@@ -132,7 +132,7 @@ const LeaderboardPage = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
-                      {['Name', 'Best Score', 'Interviews', 'Streak', 'Max Streak'].map((h) => (
+                      {['Name', 'Best Score', 'Interviews', 'Best Streak', 'Joined'].map((h) => (
                         <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1px solid var(--border)' }}>
                           {h}
                         </th>
@@ -158,9 +158,11 @@ const LeaderboardPage = () => {
                           </td>
                           <td style={{ padding: '14px 16px', color: 'var(--text-muted)' }}>{u.totalInterviews}</td>
                           <td style={{ padding: '14px 16px' }}>
-                            <span style={{ color: u.streak > 0 ? 'var(--warning)' : 'var(--text-dim)', fontWeight: 700 }}><FaFire style={{ marginRight: 4 }} /> {u.streak}</span>
+                            <span style={{ color: u.maxStreak > 0 ? 'var(--warning)' : 'var(--text-dim)', fontWeight: 700 }}><FaFire style={{ marginRight: 4 }} /> {u.maxStreak}</span>
                           </td>
-                          <td style={{ padding: '14px 16px', fontWeight: 700, color: 'var(--primary)' }}>{u.maxStreak}</td>
+                          <td style={{ padding: '14px 16px', color: 'var(--text-dim)', fontSize: '0.85rem' }}>
+                            {u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+                          </td>
                         </tr>
                       ))
                     )}

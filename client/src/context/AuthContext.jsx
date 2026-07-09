@@ -112,8 +112,15 @@ export const AuthProvider = ({ children }) => {
     setUser(prev => ({ ...prev, ...updates }));
   };
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const res = await axios.get('/api/auth/me');
+      setUser(res.data.user);
+    } catch { /* ignore */ }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateUser, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

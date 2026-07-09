@@ -280,7 +280,12 @@ const ResumePage = () => {
         .result-section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; width: 100%; }
         .result-section-title { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
         .resume-results-container { width: 100%; }
-        .resume-results-container .result-section { text-align: left; }
+        .resume-results-container .result-section { text-align: center; }
+        .resume-results-container .result-section .result-section-title { justify-content: center; }
+        .resume-results-container .result-section .skill-tag,
+        .resume-results-container .result-section .keyword-cloud-item,
+        .resume-results-container .result-section .improvement-item { text-align: left; }
+        .resume-layout { transition: grid-template-columns 0.3s ease; }
       `}</style>
 
       <div className="container" style={{ paddingTop: 40 }}>
@@ -299,7 +304,7 @@ const ResumePage = () => {
           </p>
         </div>
 
-        <div className="resume-layout">
+          <div className="resume-layout" style={analysis ? { gridTemplateColumns: '1fr', maxWidth: 700, margin: '0 auto' } : {}}>
           {/* ── Left Column: Upload ── */}
           <div>
             {/* Upload Zone */}
@@ -407,18 +412,16 @@ const ResumePage = () => {
               <div>
                 {/* ATS Score */}
                 <div className="result-section" style={{ borderColor: atsScore >= 80 ? 'rgba(34,197,94,0.3)' : atsScore >= 60 ? 'rgba(245,158,11,0.3)' : 'rgba(239,68,68,0.3)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
-                    <div>
-                      <div className="result-section-title">ATS Compatibility</div>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', maxWidth: 280 }}>
-                        {atsScore >= 80
-                          ? 'Your resume is well-optimized for Applicant Tracking Systems.'
-                          : atsScore >= 60
-                          ? 'Your resume passes most ATS filters but has room for improvement.'
-                          : 'Your resume may be filtered out by ATS systems. Follow the suggestions below.'}
-                      </p>
-                    </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+                    <div className="result-section-title">ATS Compatibility</div>
                     <ATSRing score={atsScore} />
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', maxWidth: 400, textAlign: 'center' }}>
+                      {atsScore >= 80
+                        ? 'Your resume is well-optimized for Applicant Tracking Systems.'
+                        : atsScore >= 60
+                        ? 'Your resume passes most ATS filters but has room for improvement.'
+                        : 'Your resume may be filtered out by ATS systems. Follow the suggestions below.'}
+                    </p>
                   </div>
                 </div>
 

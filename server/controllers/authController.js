@@ -128,7 +128,7 @@ const getMe = async (req, res) => {
 const getLeaderboard = async (req, res) => {
   try {
     const users = await User.find({ totalInterviews: { $gt: 0 } })
-      .select('name avatar streak totalInterviews bestScore lastActive')
+      .select('name avatar streak maxStreak totalInterviews bestScore lastActive createdAt')
       .sort({ bestScore: -1, totalInterviews: -1 })
       .limit(50);
 
@@ -142,7 +142,9 @@ const getLeaderboard = async (req, res) => {
         score: u.bestScore || 0,
         interviews: u.totalInterviews || 0,
         streak: u.streak || 0,
-        date: u.lastActive
+        maxStreak: u.maxStreak || 0,
+        lastActive: u.lastActive,
+        createdAt: u.createdAt
       }))
     });
   } catch (error) {
@@ -171,7 +173,8 @@ const getAllUsers = async (req, res) => {
         maxStreak: u.maxStreak || 0,
         totalInterviews: u.totalInterviews || 0,
         bestScore: u.bestScore || 0,
-        lastActive: u.lastActive
+        lastActive: u.lastActive,
+        createdAt: u.createdAt
       }))
     });
   } catch (error) {
